@@ -1,7 +1,13 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image'
 import styles from './Header.module.scss';
+import Link from 'next/link'
+import { Menu } from '@headlessui/react'
+import { useAuth } from '@/lib/auth/useAuth'
+import { authService } from '@/lib/api/authService'
+import { UserIcon } from '@heroicons/react/24/outline'
+
 import {
   Dialog,
   DialogPanel,
@@ -25,6 +31,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid';
+
 const products = [
   { name: '내 지역의 취미', description: '내 지역의 취미를 보는곳', href: '#', icon: MapPinIcon },
   { name: '취미 둘러보기', description: '사람들의 취미를 공유하는곳', href: '#', icon: ChatBubbleBottomCenterTextIcon },
@@ -35,7 +42,14 @@ export interface HeaderProps {
 }
 
 export default function Header() {
+  const { isLoggedIn, logout, checkToken } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // ✅ 페이지 진입 시 토큰 확인 → 상태 동기화
+  useEffect(() => {
+    checkToken()
+  }, [])
+
   return (
     <header className="bg-white">
     <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-2 lg:px-8">
@@ -94,10 +108,31 @@ export default function Header() {
           내 취미
         </a>
       </PopoverGroup>
-      <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-        <a href="#" className="text-sm/6 font-semibold text-gray-900">
-          Log in <span aria-hidden="true">&rarr;</span>
-        </a>
+      <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-4">
+        {isLoggedIn ? (
+          <Menu as="div" className="relative">
+            <Menu.Button className="flex items-center gap-1 text-sm font-semibold text-gray-900">
+              <UserIcon className="w-5 h-5" />
+            </Menu.Button>
+            <Menu.Items className="absolute right-0 mt-2 w-36 bg-white border rounded shadow z-50">
+              <Menu.Item>
+                <Link href="/mypage" className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-600">
+                  마이페이지
+                </Link>
+              </Menu.Item>
+              <Menu.Item>
+                <button onClick={logout} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-gray-600">
+                  로그아웃
+                </button>
+              </Menu.Item>
+            </Menu.Items>
+          </Menu>
+        ) : (
+          <>
+            <Link href="/auth/login" className="text-sm font-semibold text-gray-900">로그인</Link>
+            <Link href="/auth/join" className="text-sm font-semibold text-gray-900">회원가입</Link>
+          </>
+        )}
       </div>
     </nav>
     <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
@@ -155,14 +190,20 @@ export default function Header() {
                 내 취미
               </a>
             </div>
-            <div className="py-6">
-              <a
-                href="#"
-                className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-              >
-                Log in
-              </a>
-            </div>
+            <div className="py-6 flex flex-col gap-2">
+            <Link
+              href="/auth/login"
+              className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+            >
+              로그인
+            </Link>
+            <Link
+              href="/auth/join"
+              className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+            >
+              회원가입
+            </Link>
+          </div>
           </div>
         </div>
       </DialogPanel>
