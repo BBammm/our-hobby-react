@@ -27,11 +27,12 @@ export default function EventSlider({ slides }: { slides: Slide[] }) {
   return (
     <section className="w-full px-4 py-6 flex justify-center">
       <div className='w-full max-w-[1200px]'>
+        <h2 className="text-lg font-bold mb-4 text-gray-800">이벤트</h2>
         <div ref={sliderRef} className="keen-slider rounded-xl overflow-hidden text-gray-300">
           {slides.map((slide, index) => (
             <div
               key={index}
-              className="keen-slider__slide flex items-center justify-between gap-4 bg-white px-6 py-6 rounded-xl"
+              className="keen-slider__slide flex items-center justify-between gap-4 bg-gray-50 px-6 py-6 rounded-xl"
             >
               <div className="flex flex-col gap-1">
                 <p className="text-sm text-gray-500">{slide.description}</p>
