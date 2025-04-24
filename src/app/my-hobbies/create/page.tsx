@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ComboboxTagSelector from '@/components/ComboboxTagSelector/ComboboxTagSelector'
+import MapLocationSelector from '@/components/MapLocationSelector/MapLocationSelector'
+import { createHobby } from '@/lib/api/hobbyService'
 
 export default function CreateHobbyPage() {
   const router = useRouter()
@@ -11,15 +13,16 @@ export default function CreateHobbyPage() {
   const [tag, setTag] = useState('')
   const [description, setDescription] = useState('')
   const [locationType, setLocationType] = useState<'offline' | 'home'>('offline')
-  const [mapLocation, setMapLocation] = useState('')
   const [manualLocation, setManualLocation] = useState('')
   const [error, setError] = useState('')
 
+  const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null)
   const [selectedTag, setSelectedTag] = useState<any | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name || !tag || !description) {
+  
+    if (!name || !selectedTag || !description) {
       setError('모든 필드를 입력해주세요.')
       return
     }
@@ -27,12 +30,25 @@ export default function CreateHobbyPage() {
       setError('모임 이름은 30자 이내로 입력해주세요.')
       return
     }
-
-    const finalLocation = locationType === 'home' ? manualLocation : mapLocation
-
-    console.log({ name, tag, description, finalLocation })
-    alert('모임 생성 완료!')
-    router.push('/my-hobbies')
+  
+    const finalLocation =
+      locationType === 'home' ? manualLocation : location
+  
+    try {
+      await createHobby({
+        name,
+        tagId: selectedTag._id,
+        description,
+        locationType,
+        location: finalLocation,
+      })
+  
+      alert('모임 생성 완료!')
+      router.push('/my-hobbies')
+    } catch (err) {
+      console.error(err)
+      setError('서버에 저장하는 데 실패했어요.')
+    }
   }
 
   return (
@@ -109,14 +125,7 @@ export default function CreateHobbyPage() {
           {locationType === 'offline' ? (
             <div className="border border-gray-300 p-3 rounded text-sm text-gray-800">
               {/* TODO: Google Map 컴포넌트 들어올 자리 */}
-              구글맵 위치 선택 (개발 예정)
-              <input
-                type="text"
-                value={mapLocation}
-                onChange={(e) => setMapLocation(e.target.value)}
-                className="w-full mt-2 border border-gray-300 px-2 py-1 rounded text-gray-900 placeholder-gray-500"
-                placeholder="임시 위치 입력값"
-              />
+              <MapLocationSelector onChange={(loc) => setLocation(loc)} />
             </div>
           ) : (
             <input
