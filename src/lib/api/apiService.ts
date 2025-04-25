@@ -1,14 +1,13 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import toast from 'react-hot-toast'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
-// localStorage에서 userToken 가져오기
 const getToken = (): string | null => {
   if (typeof window === 'undefined') return null
   return localStorage.getItem('userToken')
 }
 
-// 헤더 설정 (Authorization 자동 포함)
 const setHeaders = (): Record<string, string> => {
   const token = getToken()
   return {
@@ -17,26 +16,58 @@ const setHeaders = (): Record<string, string> => {
   }
 }
 
-// 공통 에러 핸들러
 const handleError = (error: any): never => {
-  const message = error.response?.data?.error || error.message || '네트워크 오류'
-  console.error('[API Error]', message)
-  throw new Error(message)
+  const status = error?.response?.status
+  const serverMessage = error?.response?.data?.error
+  const fallbackMessage = error?.message || '알 수 없는 오류가 발생했어요'
+  const token = typeof window !== 'undefined' ? localStorage.getItem('userToken') : null
+
+  // 공통 메시지 매핑
+  const defaultMessages: Record<number, string> = {
+    400: '요청 형식이 잘못되었습니다.',
+    401: token ? '접근 권한이 없습니다.' : '로그인이 필요합니다.',
+    403: '이 기능을 사용할 권한이 없습니다.',
+    404: '요청한 리소스를 찾을 수 없습니다.',
+    409: '이미 등록된 항목입니다.',
+    422: '입력값을 확인해주세요.',
+    429: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
+    500: '서버 오류가 발생했습니다.',
+    503: '서비스가 일시적으로 중단되었습니다.',
+  }
+
+  const finalMessage = defaultMessages[status] || serverMessage || fallbackMessage
+
+  // 사용자 피드백
+  if (typeof window !== 'undefined') {
+    toast.error(finalMessage)
+
+    // 라우팅 동작
+    switch (status) {
+      case 401:
+        if (!token) {
+          window.location.href = '/login'
+        }
+        break
+      case 404:
+        window.location.href = '/404'
+        break
+    }
+  }
+
+  throw new Error(finalMessage)
 }
 
-// 공통 요청 함수
 const request = async <T>(
   method: 'get' | 'post' | 'put' | 'delete',
   url: string,
   data?: any,
-  config: any = {}
+  config: AxiosRequestConfig = {}
 ): Promise<T> => {
   try {
-    const response = await axios({
+    const response: AxiosResponse<T> = await axios({
       method,
       url: `${BASE_URL}${url}`,
       data,
-      withCredentials: true, // ✅ 브라우저 쿠키 포함 + CORS 대응
       headers: {
         ...setHeaders(),
         ...(config.headers || {}),
@@ -49,10 +80,9 @@ const request = async <T>(
   }
 }
 
-// API 메서드별 함수 정리
 export const apiService = {
-  get: <T>(url: string, config?: any) => request<T>('get', url, null, config),
-  post: <T>(url: string, data?: any, config?: any) => request<T>('post', url, data, config),
-  put: <T>(url: string, data?: any, config?: any) => request<T>('put', url, data, config),
-  delete: <T>(url: string, config?: any) => request<T>('delete', url, null, config),
+  get: <T>(url: string, config?: AxiosRequestConfig) => request<T>('get', url, null, config),
+  post: <T>(url: string, data?: any, config?: AxiosRequestConfig) => request<T>('post', url, data, config),
+  put: <T>(url: string, data?: any, config?: AxiosRequestConfig) => request<T>('put', url, data, config),
+  delete: <T>(url: string, config?: AxiosRequestConfig) => request<T>('delete', url, null, config),
 }

@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useKeenSlider } from 'keen-slider/react'
+import { useEffect, useRef, useState } from 'react'
+import KeenSlider from 'keen-slider'
 import 'keen-slider/keen-slider.min.css'
 import { getAllTags } from '@/lib/api/tagService'
 
@@ -11,23 +11,9 @@ interface Tag {
 }
 
 export default function PopularHobbies() {
-  const [sliderRef] = useKeenSlider<HTMLDivElement>({
-    loop: false,
-    slides: {
-      perView: 5,
-      spacing: 16,
-    },
-    breakpoints: {
-      '(max-width: 768px)': {
-        slides: {
-          perView: 2,
-          spacing: 8,
-        },
-      },
-    },
-  })
-
+  const sliderRef = useRef<HTMLDivElement | null>(null)
   const [tags, setTags] = useState<Tag[]>([])
+  const [sliderInstance, setSliderInstance] = useState<any>(null)
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -36,6 +22,31 @@ export default function PopularHobbies() {
     }
     fetchTags()
   }, [])
+
+  useEffect(() => {
+    if (sliderRef.current && tags.length > 0) {
+      const slider = new KeenSlider(sliderRef.current, {
+        loop: false,
+        slides: {
+          perView: 5,
+          spacing: 16,
+        },
+        breakpoints: {
+          '(max-width: 768px)': {
+            slides: {
+              perView: 2,
+              spacing: 8,
+            },
+          },
+        },
+      })
+      setSliderInstance(slider)
+
+      return () => {
+        slider.destroy()
+      }
+    }
+  }, [tags])
 
   return (
     <section className="w-full px-4 py-6 flex justify-center">
@@ -46,7 +57,7 @@ export default function PopularHobbies() {
             <a
               key={tag._id}
               href={`/search?tag=${encodeURIComponent(tag.name)}`}
-              className="keen-slider__slide rounded-lg p-4 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-gray-100 transition hover:brightness-95"
+              className="keen-slider__slide shrink-0 basis-[20%] p-4 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-gray-100 transition hover:brightness-95"
             >
               <div className="h-24 w-24 bg-blue-100 text-blue-800 font-bold flex items-center justify-center rounded-full text-lg mb-2">
                 #{tag.name}
