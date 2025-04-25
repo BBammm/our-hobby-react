@@ -1,27 +1,20 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
+import { getAllTags } from '@/lib/api/tagService'
 
-interface Hobby {
+interface Tag {
+  _id: string
   name: string
-  image: string
 }
-
-const hobbies: Hobby[] = [
-  { name: '등산', image: '/images/home-popular-hiking.png' },
-  { name: '볼링', image: '/images/home-popular-bowling.png' },
-  { name: '보드게임', image: '/images/home-popular-game.png' },
-  { name: '테니스', image: '/images/home-popular-tennis.png' },
-  { name: '요가', image: '/images/home-popular-yoga.png' },
-  { name: '댄스', image: '/images/home-popular-dance.png' },
-]
 
 export default function PopularHobbies() {
   const [sliderRef] = useKeenSlider<HTMLDivElement>({
     loop: false,
     slides: {
-      perView: 6,
+      perView: 5,
       spacing: 16,
     },
     breakpoints: {
@@ -34,23 +27,31 @@ export default function PopularHobbies() {
     },
   })
 
+  const [tags, setTags] = useState<Tag[]>([])
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      const res: any = await getAllTags()
+      setTags(res)
+    }
+    fetchTags()
+  }, [])
+
   return (
     <section className="w-full px-4 py-6 flex justify-center">
-      <div className='w-full max-w-[1200px]'>
-        <h2 className="text-lg font-bold mb-4 text-gray-800">추천 취미 장르</h2>
+      <div className="w-full max-w-[1200px]">
+        <h2 className="text-lg font-bold mb-4 text-gray-800">추천 취미 태그</h2>
         <div ref={sliderRef} className="keen-slider">
-          {hobbies.map((hobby, index) => (
+          {tags.map((tag) => (
             <a
-            key={index}
-            href={`/search?hobby=${encodeURIComponent(hobby.name)}`}
-            className="keen-slider__slide rounded-lg p-4 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-gray-100 transition hover:brightness-95"
+              key={tag._id}
+              href={`/search?tag=${encodeURIComponent(tag.name)}`}
+              className="keen-slider__slide rounded-lg p-4 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-gray-100 transition hover:brightness-95"
             >
-              <img
-                src={hobby.image}
-                alt={hobby.name}
-                className="h-24 w-24 object-cover mb-2"
-              />
-              <span className="text-sm font-medium text-gray-600">{hobby.name}</span>
+              <div className="h-24 w-24 bg-blue-100 text-blue-800 font-bold flex items-center justify-center rounded-full text-lg mb-2">
+                #{tag.name}
+              </div>
+              <span className="text-sm font-medium text-gray-600">{tag.name}</span>
             </a>
           ))}
         </div>

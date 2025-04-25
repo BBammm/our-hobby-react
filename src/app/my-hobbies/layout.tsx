@@ -18,7 +18,7 @@ export default function MyHobbiesLayout({ children }: { children: ReactNode }) {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">내 취미</h1>
+        <h1 className="text-2xl font-bold text-gray-800">내 취미</h1>
 
         {/* ✅ 데스크탑용 버튼 */}
         <Link

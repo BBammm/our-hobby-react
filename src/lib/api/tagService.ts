@@ -16,6 +16,17 @@ export const getTags = async (query: string): Promise<Tag[]> => {
   }
 }
 
+export const getAllTags = async () => {
+  try {
+    const res = await apiService.get('/tags')
+    return res
+  } catch (err) {
+    console.error('[getAllTags] 태그 불러오기 실패', err)
+    return []
+  }
+}
+
+
 // ➕ 새로운 태그 생성
 export const createTag = async (name: string): Promise<Tag | null> => {
   try {
