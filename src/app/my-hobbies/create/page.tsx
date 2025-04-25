@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ComboboxTagSelector from '@/components/ComboboxTagSelector/ComboboxTagSelector'
 import MapLocationSelector from '@/components/MapLocationSelector/MapLocationSelector'
 import { createHobby } from '@/lib/api/hobbyService'
+import { useAuth } from '@/lib/auth/useAuth'
 
 export default function CreateHobbyPage() {
   const router = useRouter()
@@ -16,8 +17,13 @@ export default function CreateHobbyPage() {
   const [manualLocation, setManualLocation] = useState('')
   const [error, setError] = useState('')
 
+  const { user, checkToken } = useAuth()
   const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null)
   const [selectedTag, setSelectedTag] = useState<any | null>(null)
+
+  useEffect(() => {
+    checkToken() // 새로고침 시 로그인 유지 상태 보정
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,6 +47,7 @@ export default function CreateHobbyPage() {
         description,
         locationType,
         location: finalLocation,
+        creator: user?.userId
       })
   
       alert('모임 생성 완료!')
