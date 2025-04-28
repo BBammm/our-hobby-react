@@ -12,11 +12,11 @@ export interface CardItemProps {
 
 export default function CardItem({ image, title, description, href }: CardItemProps) {
   const content = (
-    <div className={styles.card}>
+    <div className="block font-medium mb-1">
       <img src={image} alt={title} />
       <div className={styles.info}>
-        <h3>{title}</h3>
-        <p>{description}</p>
+        <h3 className='text-gray-600'>{title}</h3>
+        <p className='text-gray-400'>{description}</p>
       </div>
     </div>
   )
