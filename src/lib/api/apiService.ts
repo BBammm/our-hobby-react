@@ -1,5 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import toast from 'react-hot-toast'
+import { useLoadingStore } from '@/lib/store/loadingStore'
+
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
@@ -63,6 +65,9 @@ const request = async <T>(
   data?: any,
   config: AxiosRequestConfig = {}
 ): Promise<T> => {
+  const { startLoading, stopLoading } = useLoadingStore.getState() // ✅ 상태 가져오기
+  startLoading()
+
   try {
     const response: AxiosResponse<T> = await axios({
       method,
@@ -77,6 +82,8 @@ const request = async <T>(
     return response.data
   } catch (error) {
     return handleError(error)
+  } finally {
+    stopLoading() // ✅ 요청 끝나면 무조건 로딩 끔
   }
 }
 

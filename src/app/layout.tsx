@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "@/layout/components/Header/Header";
 import Footer from "@/layout/components/Footer/Footer";
-import { Toaster } from 'react-hot-toast'
+import LoadingProgress from "@/components/LoadingProgress/LoadingProgress";
+import Spinner from '@/components/Spinner/Spinner'
+import { Toaster } from 'react-hot-toast';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -54,9 +56,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <LoadingProgress />
+        <Spinner />
         <Toaster position="top-center" reverseOrder={false} />
         <Header />
         {children}
