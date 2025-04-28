@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Header from "@/layout/components/Header/Header";
 import Footer from "@/layout/components/Footer/Footer";
 import LoadingProgress from "@/components/LoadingProgress/LoadingProgress";
+import SplashScreen from '@/components/SplashScreen/SplashScreen'  // ✅ 추가
 import Spinner from '@/components/Spinner/Spinner'
 import { Toaster } from 'react-hot-toast';
 import "./globals.css";
@@ -59,6 +60,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <SplashScreen />
         <LoadingProgress />
         <Spinner />
         <Toaster position="top-center" reverseOrder={false} />

@@ -1,17 +1,24 @@
-import type { NextConfig } from "next";
-
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development', // 개발 모드에서는 PWA 비활성화
-})
-
+import withPWA from 'next-pwa'
+import type { NextConfig } from 'next'
+import runtimeCaching from 'next-pwa/cache'
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactStrictMode: true,
   eslint: {
-    ignoreDuringBuilds: true,  // ✅ 이 줄 추가!
+    ignoreDuringBuilds: true,
   },
-};
+  experimental: {
+    typedRoutes: true,  // (있으면 추가)
+  },
+  pwa: {
+    dest: 'public',
+    runtimeCaching,
+    disable: process.env.NODE_ENV === 'development', // 개발 중에는 PWA 비활성화
+    fallbacks: {
+      document: '/offline.html',
+    },
+  },
+}
 
-export default nextConfig;
+// ✅ 꼭 withPWA로 감싸서 export
+export default withPWA(nextConfig)
