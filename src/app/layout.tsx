@@ -23,6 +23,8 @@ export const metadata: Metadata = {
     template: '%s | 우리의 취미',
   },
   description: '당신의 취미를 기록하고 공유해보세요. 전국의 다양한 취미를 한눈에!',
+  manifest: '/manifest.json', // ✅ 이 줄 추가
+  themeColor: '#3B82F6',
   keywords: ['취미', '모임', '우리의 취미', '소셜링', '우리 동네 취미'],
   authors: [{ name: '우리의 취미 팀', url: 'https://yourdomain.com' }],
   creator: '우리의 취미',
