@@ -8,17 +8,16 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    typedRoutes: true,  // (있으면 추가)
+    typedRoutes: true,
   },
   pwa: {
     dest: 'public',
     runtimeCaching,
-    disable: process.env.NODE_ENV === 'development', // 개발 중에는 PWA 비활성화
+    disable: process.env.NODE_ENV === 'development',
     fallbacks: {
       document: '/offline.html',
     },
   },
 }
 
-// ✅ 꼭 withPWA로 감싸서 export
-export default withPWA(nextConfig)
+export default withPWA(nextConfig) // ✅ 단일 호출
