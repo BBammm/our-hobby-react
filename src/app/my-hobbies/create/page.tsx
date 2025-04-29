@@ -16,18 +16,18 @@ export default function CreateHobbyPage() {
   const [locationType, setLocationType] = useState<'offline' | 'home'>('offline')
   const [manualLocation, setManualLocation] = useState('')
   const [error, setError] = useState('')
-
+  
   const { user, checkToken } = useAuth()
   const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null)
   const [selectedTag, setSelectedTag] = useState<any | null>(null)
 
   useEffect(() => {
-    checkToken() // 새로고침 시 로그인 유지 상태 보정
+    checkToken()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-  
+
     if (!name || !selectedTag || !description) {
       setError('모든 필드를 입력해주세요.')
       return
@@ -36,20 +36,40 @@ export default function CreateHobbyPage() {
       setError('모임 이름은 30자 이내로 입력해주세요.')
       return
     }
-  
-    const finalLocation =
-      locationType === 'home' ? manualLocation : location
-  
+
     try {
+      let finalLocation
+
+      if (locationType === 'home') {
+        // 🏡 집에서 하는 취미
+        finalLocation = {
+          type: 'Point',
+          coordinates: [0, 0], // 집 취미는 좌표가 필요 없으므로 임의 0,0
+          address: manualLocation,
+        }
+      } else {
+        if (!location) {
+          setError('지도를 통해 위치를 선택해주세요.')
+          return
+        }
+
+        const address = await getAddressFromLatLng(location)
+        finalLocation = {
+          type: 'Point',
+          coordinates: [location.lng, location.lat], // ✅ 꼭 lng, lat 순서
+          address,
+        }
+      }
+
       await createHobby({
         name,
         tagId: selectedTag._id,
         description,
         locationType,
         location: finalLocation,
-        creator: user?.userId
+        creator: user?.userId,
       })
-  
+
       alert('모임 생성 완료!')
       router.push('/my-hobbies')
     } catch (err) {
@@ -58,10 +78,30 @@ export default function CreateHobbyPage() {
     }
   }
 
+  const getAddressFromLatLng = async (location: { lat: number; lng: number }): Promise<string> => {
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${location.lat},${location.lng}&key=${apiKey}&language=ko`
+      const res = await fetch(url)
+      const data = await res.json()
+
+      if (data.status === 'OK' && data.results.length > 0) {
+        return data.results[0].formatted_address
+      } else {
+        console.error('주소 변환 실패:', data.error_message || data.status)
+        return ''
+      }
+    } catch (err) {
+      console.error('geocode 실패:', err)
+      return ''
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6 text-gray-900">취미모임 만들기</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* 모임 이름 */}
         <div>
           <label className="block font-medium mb-1 text-gray-800">모임 이름</label>
           <input
@@ -74,26 +114,28 @@ export default function CreateHobbyPage() {
           <p className="text-sm text-gray-500 text-right">{name.length}/30</p>
         </div>
 
+        {/* 태그 선택 */}
         <div>
           <label className="block font-medium mb-1 text-gray-800">모임 태그 (1개 선택)</label>
           <div>
-          {selectedTag ? (
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
-              <span>{selectedTag.name}</span>
-              <button
-                type="button"
-                onClick={() => setSelectedTag(null)}
-                className="text-sm text-blue-500 hover:text-blue-800"
-              >
-                ×
-              </button>
-            </div>
-          ) : (
-            <ComboboxTagSelector value={selectedTag} onChange={setSelectedTag} />
-          )}
-        </div>
+            {selectedTag ? (
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300">
+                <span>{selectedTag.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedTag(null)}
+                  className="text-sm text-blue-500 hover:text-blue-800"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <ComboboxTagSelector value={selectedTag} onChange={setSelectedTag} />
+            )}
+          </div>
         </div>
 
+        {/* 모임 설명 */}
         <div>
           <label className="block font-medium mb-1 text-gray-800">모임 설명</label>
           <textarea
@@ -104,6 +146,7 @@ export default function CreateHobbyPage() {
           />
         </div>
 
+        {/* 위치 선택 */}
         <div>
           <label className="block font-medium mb-1 text-gray-800">모임 위치</label>
           <div className="flex gap-4 mb-3 text-gray-800">
@@ -114,8 +157,7 @@ export default function CreateHobbyPage() {
                 value="offline"
                 checked={locationType === 'offline'}
                 onChange={() => setLocationType('offline')}
-              />{' '}
-              지도에서 선택
+              /> 지도에서 선택
             </label>
             <label>
               <input
@@ -124,14 +166,12 @@ export default function CreateHobbyPage() {
                 value="home"
                 checked={locationType === 'home'}
                 onChange={() => setLocationType('home')}
-              />{' '}
-              집에서 하는 취미
+              /> 집에서 하는 취미
             </label>
           </div>
 
           {locationType === 'offline' ? (
             <div className="border border-gray-300 p-3 rounded text-sm text-gray-800">
-              {/* TODO: Google Map 컴포넌트 들어올 자리 */}
               <MapLocationSelector onChange={(loc) => setLocation(loc)} />
             </div>
           ) : (
