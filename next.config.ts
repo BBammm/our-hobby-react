@@ -1,8 +1,9 @@
+// next.config.ts
 import withPWA from 'next-pwa'
 import type { NextConfig } from 'next'
 import runtimeCaching from 'next-pwa/cache'
 
-const nextConfig: NextConfig = {
+const baseConfig: NextConfig = {
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
@@ -10,6 +11,10 @@ const nextConfig: NextConfig = {
   experimental: {
     typedRoutes: true,
   },
+}
+
+const configWithPWA = withPWA({
+  ...baseConfig,
   pwa: {
     dest: 'public',
     runtimeCaching,
@@ -17,7 +22,7 @@ const nextConfig: NextConfig = {
     fallbacks: {
       document: '/offline.html',
     },
-  },
-}
+  }
+})
 
-export default withPWA(nextConfig) // ✅ 단일 호출
+export default configWithPWA
