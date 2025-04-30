@@ -67,6 +67,12 @@ export default function SearchSection() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && query.trim()) {
+              e.preventDefault()
+              router.push(`/search?query=${encodeURIComponent(query)}`)
+            }
+          }}
           placeholder="모임이나 장소를 검색해보세요"
           className="flex-1 px-4 py-2 text-sm outline-none text-gray-600"
         />
