@@ -1,7 +1,10 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosError,
+} from 'axios'
 import toast from 'react-hot-toast'
 import { useLoadingStore } from '@/lib/store/loadingStore'
-
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
@@ -18,13 +21,19 @@ const setHeaders = (): Record<string, string> => {
   }
 }
 
-const handleError = (error: any): never => {
-  const status = error?.response?.status
-  const serverMessage = error?.response?.data?.error
-  const fallbackMessage = error?.message || '알 수 없는 오류가 발생했어요'
+const handleError = (error: unknown): never => {
+  let status: number | undefined
+  let serverMessage: string | undefined
+  let fallbackMessage = '알 수 없는 오류가 발생했어요'
+
+  if (axios.isAxiosError(error)) {
+    status = error.response?.status
+    serverMessage = error.response?.data?.error
+    fallbackMessage = error.message
+  }
+
   const token = typeof window !== 'undefined' ? localStorage.getItem('userToken') : null
 
-  // 공통 메시지 매핑
   const defaultMessages: Record<number, string> = {
     400: '요청 형식이 잘못되었습니다.',
     401: token ? '접근 권한이 없습니다.' : '로그인이 필요합니다.',
@@ -37,18 +46,14 @@ const handleError = (error: any): never => {
     503: '서비스가 일시적으로 중단되었습니다.',
   }
 
-  const finalMessage = defaultMessages[status] || serverMessage || fallbackMessage
+  const finalMessage = (status && defaultMessages[status]) || serverMessage || fallbackMessage
 
-  // 사용자 피드백
   if (typeof window !== 'undefined') {
     toast.error(finalMessage)
 
-    // 라우팅 동작
     switch (status) {
       case 401:
-        if (!token) {
-          window.location.href = '/auth/login'
-        }
+        if (!token) window.location.href = '/auth/login'
         break
       case 404:
         window.location.href = '/404'
@@ -62,10 +67,10 @@ const handleError = (error: any): never => {
 const request = async <T>(
   method: 'get' | 'post' | 'put' | 'delete',
   url: string,
-  data?: any,
+  data?: unknown,
   config: AxiosRequestConfig = {}
 ): Promise<T> => {
-  const { startLoading, stopLoading } = useLoadingStore.getState() // ✅ 상태 가져오기
+  const { startLoading, stopLoading } = useLoadingStore.getState()
   startLoading()
 
   try {
@@ -80,16 +85,20 @@ const request = async <T>(
       ...config,
     })
     return response.data
-  } catch (error) {
+  } catch (error: unknown) {
     return handleError(error)
   } finally {
-    stopLoading() // ✅ 요청 끝나면 무조건 로딩 끔
+    stopLoading()
   }
 }
 
 export const apiService = {
-  get: <T>(url: string, config?: AxiosRequestConfig) => request<T>('get', url, null, config),
-  post: <T>(url: string, data?: any, config?: AxiosRequestConfig) => request<T>('post', url, data, config),
-  put: <T>(url: string, data?: any, config?: AxiosRequestConfig) => request<T>('put', url, data, config),
-  delete: <T>(url: string, config?: AxiosRequestConfig) => request<T>('delete', url, null, config),
+  get: <T>(url: string, config?: AxiosRequestConfig) =>
+    request<T>('get', url, undefined, config),
+  post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
+    request<T>('post', url, data, config),
+  put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
+    request<T>('put', url, data, config),
+  delete: <T>(url: string, config?: AxiosRequestConfig) =>
+    request<T>('delete', url, undefined, config),
 }

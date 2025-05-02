@@ -21,9 +21,9 @@ export default function LoginPage() {
       const res = await authService.login(data)
       login(res.token)
       router.push('/')
-    } catch (err: any) {
-      console.log(err);
-      alert(err.message || '로그인 실패')
+    } catch (err) {
+      const error = err as { message?: string }
+      alert(error.message || '로그인 실패')
     }
   }
 

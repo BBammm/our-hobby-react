@@ -1,10 +1,11 @@
 declare module 'next-pwa' {
   import { NextConfig } from 'next'
-
-  export default function withPWA(config: NextConfig): NextConfig
+  const withPWA: (config: NextConfig) => NextConfig
+  export default withPWA
 }
 
 declare module 'next-pwa/cache' {
-  const runtimeCaching: any
+  import type { RuntimeCaching } from 'next-pwa'
+  const runtimeCaching: RuntimeCaching[]
   export default runtimeCaching
 }
