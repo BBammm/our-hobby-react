@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 export default function SplashScreen() {
@@ -22,7 +23,7 @@ export default function SplashScreen() {
 
   return (
     <div className="fixed inset-0 bg-white flex items-center justify-center z-[9999] transition-opacity duration-1000 animate-fadeOut">
-      <img
+      <Image
         src="/icons/icon-512x512.png"
         alt="우리의 취미 로고"
         className="w-32 h-32 animate-fadeIn"

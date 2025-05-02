@@ -3,6 +3,7 @@
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import { useState } from 'react'
+import Image from 'next/image'
 
 interface Slide {
   title: string
@@ -38,7 +39,7 @@ export default function EventSlider({ slides }: { slides: Slide[] }) {
                 <p className="text-sm text-gray-500">{slide.description}</p>
                 <h3 className="text-lg font-bold text-gray-600">{slide.title}</h3>
               </div>
-              <img src={slide.image} alt={slide.title} className="h-20 w-20 object-contain" />
+              <Image src={slide.image} alt={slide.title} className="h-20 w-20 object-contain" />
             </div>
           ))}
         </div>

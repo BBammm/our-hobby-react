@@ -1,11 +1,9 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image'
-import styles from './Header.module.scss';
 import Link from 'next/link'
 import { Menu } from '@headlessui/react'
 import { useAuth } from '@/lib/auth/useAuth'
-import { authService } from '@/lib/api/authService'
 import { UserIcon } from '@heroicons/react/24/outline'
 
 import {
@@ -20,17 +18,12 @@ import {
   PopoverPanel,
 } from '@headlessui/react';
 import {
-  ArrowPathIcon,
   Bars3Icon,
-  ChartPieIcon,
-  CursorArrowRaysIcon,
-  FingerPrintIcon,
   MapPinIcon,
   ChatBubbleBottomCenterTextIcon,
-  SquaresPlusIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid';
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
 const products = [
   { name: '내 지역의 취미', description: '내 지역의 취미를 보는곳', href: '#', icon: MapPinIcon },
@@ -141,7 +134,7 @@ export default function Header() {
           <div className="flex items-center justify-between">
             <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
-              <img
+              <Image
                 alt=""
                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
                 className="h-8 w-auto"

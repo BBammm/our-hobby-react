@@ -2,7 +2,6 @@
 
 import { Combobox } from '@headlessui/react'
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 import { getTags, createTag } from '@/lib/api/tagService'
 
 interface Tag {
