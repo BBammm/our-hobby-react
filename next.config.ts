@@ -2,7 +2,7 @@ import withPWA from 'next-pwa'
 import runtimeCaching from 'next-pwa/cache'
 import type { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {
+const baseConfig: NextConfig = {
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: false,
@@ -12,8 +12,8 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withPWA({
-  ...nextConfig,
+const nextConfigWithPWA = withPWA({
+  ...baseConfig,
   pwa: {
     dest: 'public',
     runtimeCaching,
@@ -23,3 +23,5 @@ export default withPWA({
     },
   },
 })
+
+export default nextConfigWithPWA
