@@ -22,16 +22,10 @@ const setHeaders = (): Record<string, string> => {
 }
 
 const handleError = (error: unknown): never => {
-  let status: number | undefined
-  let serverMessage: string | undefined
-  let fallbackMessage = '알 수 없는 오류가 발생했어요'
-
-  if (axios.isAxiosError(error)) {
-    status = error.response?.status
-    serverMessage = error.response?.data?.error
-    fallbackMessage = error.message
-  }
-
+  const axiosError = error as AxiosError<{ error: string }>
+  const status = axiosError?.response?.status
+  const serverMessage = axiosError?.response?.data?.error
+  const fallbackMessage = axiosError?.message || '알 수 없는 오류가 발생했어요'
   const token = typeof window !== 'undefined' ? localStorage.getItem('userToken') : null
 
   const defaultMessages: Record<number, string> = {
@@ -46,7 +40,9 @@ const handleError = (error: unknown): never => {
     503: '서비스가 일시적으로 중단되었습니다.',
   }
 
-  const finalMessage = (status && defaultMessages[status]) || serverMessage || fallbackMessage
+  const finalMessage = status && defaultMessages[status]
+    ? defaultMessages[status]
+    : serverMessage || fallbackMessage
 
   if (typeof window !== 'undefined') {
     toast.error(finalMessage)

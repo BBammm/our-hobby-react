@@ -11,6 +11,9 @@
 //   experimental: {
 //     typedRoutes: true,
 //   },
+//   images: {
+//     domains: ['tailwindcss.com'], // ✅ 여기에 추가
+//   },
 //   pwa: { // pwa 설정을 nextConfig 내부로 이동
 //     dest: 'public',
 //     disable: isDev,
@@ -31,9 +34,15 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
-  experimental: {
-    typedRoutes: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**', // 외부 이미지 허용 (필요 시 제한 가능)
+      },
+    ],
   },
+  // turbopack 관련 실험 옵션 제거
 }
 
 export default nextConfig

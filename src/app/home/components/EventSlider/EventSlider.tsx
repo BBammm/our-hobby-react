@@ -39,7 +39,7 @@ export default function EventSlider({ slides }: { slides: Slide[] }) {
                 <p className="text-sm text-gray-500">{slide.description}</p>
                 <h3 className="text-lg font-bold text-gray-600">{slide.title}</h3>
               </div>
-              <Image src={slide.image} alt={slide.title} className="h-20 w-20 object-contain" />
+              <Image src={slide.image} alt={slide.title} width={20} height={20} />
             </div>
           ))}
         </div>

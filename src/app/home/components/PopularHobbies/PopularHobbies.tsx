@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import KeenSlider from 'keen-slider'
 import 'keen-slider/keen-slider.min.css'
-import { getAllTags } from '@/lib/api/tagService'
+import { tagService } from '@/lib/api/tagService'
 
 interface Tag {
   _id: string
@@ -17,7 +17,7 @@ export default function PopularHobbies() {
 
   useEffect(() => {
     const fetchTags = async () => {
-      const res: any = await getAllTags()
+      const res: any = await tagService.getAllTags()
       setTags(res)
     }
     fetchTags()

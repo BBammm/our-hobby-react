@@ -4,22 +4,25 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ComboboxTagSelector from '@/components/ComboboxTagSelector/ComboboxTagSelector'
 import MapLocationSelector from '@/components/MapLocationSelector/MapLocationSelector'
-import { createHobby } from '@/lib/api/hobbyService'
+import { hobbyService } from '@/lib/api/hobbyService'
 import { useAuth } from '@/lib/auth/useAuth'
+
+interface SelectedTag {
+  _id: string
+  name: string
+}
 
 export default function CreateHobbyPage() {
   const router = useRouter()
+  const { user, checkToken } = useAuth()
 
   const [name, setName] = useState('')
-  const [tag, setTag] = useState('')
   const [description, setDescription] = useState('')
   const [locationType, setLocationType] = useState<'offline' | 'home'>('offline')
   const [manualLocation, setManualLocation] = useState('')
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [selectedTag, setSelectedTag] = useState<SelectedTag | null>(null)
   const [error, setError] = useState('')
-  
-  const { user, checkToken } = useAuth()
-  const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null)
-  const [selectedTag, setSelectedTag] = useState<any | null>(null)
 
   useEffect(() => {
     checkToken()
@@ -32,19 +35,23 @@ export default function CreateHobbyPage() {
       setError('모든 필드를 입력해주세요.')
       return
     }
+
     if (name.length > 30) {
       setError('모임 이름은 30자 이내로 입력해주세요.')
       return
     }
 
     try {
-      let finalLocation
+      let finalLocation: {
+        lat: number
+        lng: number
+        address: string
+      }
 
       if (locationType === 'home') {
-        // 🏡 집에서 하는 취미
         finalLocation = {
-          type: 'Point',
-          coordinates: [0, 0], // 집 취미는 좌표가 필요 없으므로 임의 0,0
+          lat: 0,
+          lng: 0,
           address: manualLocation,
         }
       } else {
@@ -55,19 +62,19 @@ export default function CreateHobbyPage() {
 
         const address = await getAddressFromLatLng(location)
         finalLocation = {
-          type: 'Point',
-          coordinates: [location.lng, location.lat], // ✅ 꼭 lng, lat 순서
+          lat: location.lat,
+          lng: location.lng,
           address,
         }
       }
 
-      await createHobby({
+      await hobbyService.createHobby({
         name,
         tagId: selectedTag._id,
         description,
         locationType,
         location: finalLocation,
-        creator: user?.userId,
+        creator: user?.userId || '',
       })
 
       alert('모임 생성 완료!')
@@ -135,7 +142,7 @@ export default function CreateHobbyPage() {
           </div>
         </div>
 
-        {/* 모임 설명 */}
+        {/* 설명 */}
         <div>
           <label className="block font-medium mb-1 text-gray-800">모임 설명</label>
           <textarea
@@ -146,7 +153,7 @@ export default function CreateHobbyPage() {
           />
         </div>
 
-        {/* 위치 선택 */}
+        {/* 위치 */}
         <div>
           <label className="block font-medium mb-1 text-gray-800">모임 위치</label>
           <div className="flex gap-4 mb-3 text-gray-800">

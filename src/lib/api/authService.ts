@@ -1,22 +1,33 @@
+// src/lib/api/authService.ts
+'use client'
+
 import { apiService } from './apiService'
 
-interface RegisterData {
+export interface RegisterData {
   email: string
   password: string
   nickname: string
 }
 
-interface LoginData {
+export interface LoginData {
   email: string
   password: string
 }
 
+interface LoginResponse {
+  token: string
+}
+
+interface RegisterResponse {
+  message: string
+}
+
 export const authService = {
   register: (data: RegisterData) => {
-    return apiService.post('/auth/register', data)
+    return apiService.post<RegisterResponse>('/auth/register', data)
   },
 
   login: (data: LoginData) => {
-    return apiService.post<{ token: string }>('/auth/login', data)
+    return apiService.post<LoginResponse>('/auth/login', data)
   },
 }

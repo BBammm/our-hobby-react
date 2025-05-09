@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getMyHobbies } from '@/lib/api/hobbyService'
+import { hobbyService } from '@/lib/api/hobbyService'
 import { useAuth } from '@/lib/auth/useAuth'
 import CardItem from '@/components/CardItem/CardItem'
 
@@ -25,7 +25,7 @@ export default function MyHobbyHome() {
 
     const fetch = async () => {
       try {
-        const res: any = await getMyHobbies(user.userId)
+        const res: any = await hobbyService.getMyHobbies(user.userId)
         setMyHobbies(res)
       } catch (err) {
         console.error('내 취미 불러오기 실패:', err)

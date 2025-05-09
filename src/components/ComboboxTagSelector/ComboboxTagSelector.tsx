@@ -2,7 +2,7 @@
 
 import { Combobox } from '@headlessui/react'
 import { useEffect, useState } from 'react'
-import { getTags, createTag } from '@/lib/api/tagService'
+import { tagService } from '@/lib/api/tagService'
 
 interface Tag {
   _id: string
@@ -21,7 +21,7 @@ export default function ComboboxTagSelector({ value, onChange }: Props) {
 
   useEffect(() => {
     const fetchTags = async () => {
-      const results = await getTags(query)
+      const results = await tagService.getTags(query)
       setOptions(results)
     }
 
@@ -36,7 +36,7 @@ export default function ComboboxTagSelector({ value, onChange }: Props) {
     console.log('[선택됨]', selected)
     if (!selected) return
     if (typeof selected === 'string') {
-      const newTag = await createTag(selected)
+      const newTag = await tagService.createTag(selected)
       if (newTag) onChange(newTag)
     } else {
       onChange(selected)
