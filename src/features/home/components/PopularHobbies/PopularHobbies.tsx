@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import KeenSlider from 'keen-slider'
 import 'keen-slider/keen-slider.min.css'
-import { tagService } from '@/lib/api/tagService'
+import { tagService } from '@/shared/lib/api/tagService'
 
 interface Tag {
   _id: string

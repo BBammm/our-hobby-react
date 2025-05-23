@@ -4,7 +4,7 @@ import axios, {
   AxiosError,
 } from 'axios'
 import toast from 'react-hot-toast'
-import { useLoadingStore } from '@/lib/store/loadingStore'
+import { useLoadingStore } from '@/shared/lib/store/loadingStore'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 

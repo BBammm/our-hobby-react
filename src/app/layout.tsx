@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Header from "@/layout/components/Header/Header";
-import Footer from "@/layout/components/Footer/Footer";
-import LoadingProgress from "@/components/LoadingProgress/LoadingProgress";
-import SplashScreen from '@/components/SplashScreen/SplashScreen'  // ✅ 추가
-import Spinner from '@/components/Spinner/Spinner'
+import Header from "@/shared/components/Header/Header";
+import Footer from "@/shared/components/Footer/Footer";
+import LoadingProgress from "@/shared/components/LoadingProgress/LoadingProgress";
+import SplashScreen from '@/shared/components/SplashScreen/SplashScreen'  // ✅ 추가
+import Spinner from '@/shared/components/Spinner/Spinner'
 import { Toaster } from 'react-hot-toast';
 import "./globals.css";
 

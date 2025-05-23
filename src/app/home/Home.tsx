@@ -1,5 +1,5 @@
 import styles from './Home.module.scss';
-import { SearchSection, EventSlider, PopularHobbies } from "./components";
+import { SearchSection, EventSlider, PopularHobbies } from "../../features/home/components";
 
 const events = [
   {

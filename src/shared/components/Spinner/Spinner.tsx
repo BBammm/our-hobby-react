@@ -1,6 +1,6 @@
 'use client'
 
-import { useLoadingStore } from '@/lib/store/loadingStore'
+import { useLoadingStore } from '@/shared/lib/store/loadingStore'
 import { useEffect, useState } from 'react'
 
 export default function Spinner() {

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import ComboboxTagSelector from '@/components/ComboboxTagSelector/ComboboxTagSelector'
-import MapLocationSelector from '@/components/MapLocationSelector/MapLocationSelector'
-import { hobbyService } from '@/lib/api/hobbyService'
-import { useAuth } from '@/lib/auth/useAuth'
+import ComboboxTagSelector from '@/features/my-hobbies/components/ComboboxTagSelector/ComboboxTagSelector'
+import MapLocationSelector from '@/features/search/components/MapLocationSelector/MapLocationSelector'
+import { hobbyService } from '@/features/my-hobbies/services/hobbyService'
+import { useAuth } from '@/shared/lib/auth/useAuth'
 
 interface SelectedTag {
   _id: string

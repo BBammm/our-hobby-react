@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { hobbyService } from '@/lib/api/hobbyService'
-import { useAuth } from '@/lib/auth/useAuth'
-import CardItem from '@/components/CardItem/CardItem'
+import { hobbyService } from '@/features/my-hobbies/services/hobbyService'
+import { useAuth } from '@/shared/lib/auth/useAuth'
+import CardItem from '@/features/my-hobbies/components/CardItem/CardItem'
 
 interface Hobby {
   _id: string

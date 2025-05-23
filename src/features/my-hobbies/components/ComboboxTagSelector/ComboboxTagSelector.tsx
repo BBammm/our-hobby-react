@@ -2,7 +2,7 @@
 
 import { Combobox } from '@headlessui/react'
 import { useEffect, useState } from 'react'
-import { tagService } from '@/lib/api/tagService'
+import { tagService } from '@/shared/lib/api/tagService'
 
 interface Tag {
   _id: string

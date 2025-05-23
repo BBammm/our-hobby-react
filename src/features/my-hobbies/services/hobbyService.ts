@@ -1,4 +1,4 @@
-import { apiService } from './apiService'
+import { apiService } from '../../../shared/lib/api/apiService'
 
 // Hobby 생성 요청 타입
 export interface CreateHobbyInput {

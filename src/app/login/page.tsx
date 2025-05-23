@@ -1,7 +1,7 @@
 'use client'
 
-import { useAuth } from '@/lib/auth/useAuth'
-import { authService } from '@/lib/api/authService'
+import { useAuth } from '@/shared/lib/auth/useAuth'
+import { authService } from '@/shared/lib/api/authService'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 
