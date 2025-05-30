@@ -1,7 +1,7 @@
 'use client'
 
-import { useAuth } from '@/shared/lib/auth/useAuth'
-import { authService } from '@/shared/lib/api/authService'
+import { useAuth } from '@/features/auth/hooks/useAuth'
+import { authService } from '@/features/auth/services/authService'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 
@@ -12,14 +12,25 @@ interface FormData {
 
 export default function LoginPage() {
   const router = useRouter()
+
+  // Zustand 상태 훅에서 login 함수만 가져옴
   const login = useAuth((state) => state.login)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormData>()
 
   const onSubmit = async (data: FormData) => {
     try {
+      // 1. 로그인 API 호출
       const res = await authService.login(data)
+
+      // 2. JWT 토큰 Zustand에 저장
       login(res.token)
+
+      // 3. 메인 페이지로 이동
       router.push('/')
     } catch (err) {
       const error = err as { message?: string }

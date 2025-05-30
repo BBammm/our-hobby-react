@@ -14,7 +14,7 @@ export interface CardItemProps {
 export default function CardItem({ image, title, description, href }: CardItemProps) {
   const content = (
     <div className="block font-medium mb-1">
-      <Image src={image} alt={title} />
+      <Image src={image} alt={title} width={100} height={100}/>
       <div className={styles.info}>
         <h3 className='text-gray-600'>{title}</h3>
         <p className='text-gray-400'>{description}</p>

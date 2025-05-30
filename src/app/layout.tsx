@@ -6,7 +6,7 @@ import LoadingProgress from "@/shared/components/LoadingProgress/LoadingProgress
 import SplashScreen from '@/shared/components/SplashScreen/SplashScreen'  // ✅ 추가
 import Spinner from '@/shared/components/Spinner/Spinner'
 import { Toaster } from 'react-hot-toast';
-import "./globals.css";
+import "@/styles/globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

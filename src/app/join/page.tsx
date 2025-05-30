@@ -2,7 +2,8 @@
 
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
-import { authService } from '@/shared/lib/api/authService'
+import { authService } from '@/features/auth/services/authService'
+import { useAuth } from '@/features/auth/hooks/useAuth'
 
 interface FormData {
   email: string
@@ -12,12 +13,28 @@ interface FormData {
 
 export default function JoinPage() {
   const router = useRouter()
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>()
+  const login = useAuth((state) => state.login)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormData>()
 
   const onSubmit = async (data: FormData) => {
     try {
+      // 1. 회원가입 요청
       await authService.register(data)
-      router.push('/auth/login') // 회원가입 후 로그인 페이지로 이동
+
+      // 2. 자동 로그인 요청
+      const loginRes = await authService.login({ email: data.email, password: data.password })
+
+      // 3. 토큰 저장
+      login(loginRes.token)
+
+      // 4. 홈으로 이동
+      alert('회원가입 및 자동 로그인 완료!')
+      router.push('/')
     } catch (err: any) {
       alert(err.message || '회원가입 실패')
     }
@@ -46,7 +63,10 @@ export default function JoinPage() {
         <input
           type="password"
           placeholder="비밀번호"
-          {...register('password', { required: '비밀번호를 입력하세요.', minLength: { value: 6, message: '6자 이상 입력하세요.' } })}
+          {...register('password', {
+            required: '비밀번호를 입력하세요.',
+            minLength: { value: 6, message: '6자 이상 입력하세요.' }
+          })}
           className="w-full px-3 py-2 border rounded placeholder-gray-400 text-gray-600 border-gray-300"
         />
         {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}

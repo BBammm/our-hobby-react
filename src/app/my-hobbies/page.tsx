@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { hobbyService } from '@/features/my-hobbies/services/hobbyService'
-import { useAuth } from '@/shared/lib/auth/useAuth'
+import { useAuth } from '@/features/auth/hooks/useAuth'
 import CardItem from '@/features/my-hobbies/components/CardItem/CardItem'
 
 interface Hobby {
