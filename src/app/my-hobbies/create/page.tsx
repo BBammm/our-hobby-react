@@ -14,7 +14,7 @@ interface SelectedTag {
 
 export default function CreateHobbyPage() {
   const router = useRouter()
-  const { user, checkToken } = useAuth()
+  const { user, isLoggedIn, checkToken } = useAuth()
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -24,8 +24,16 @@ export default function CreateHobbyPage() {
   const [selectedTag, setSelectedTag] = useState<SelectedTag | null>(null)
   const [error, setError] = useState('')
 
+  // ✅ 로그인 상태 확인 및 미로그인 시 리다이렉션
   useEffect(() => {
-    checkToken()
+    const verifyLogin = async () => {
+      const result: any = await checkToken()
+      if (!result) {
+        alert('로그인이 필요합니다.')
+        router.push('/auth/login')
+      }
+    }
+    verifyLogin()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {

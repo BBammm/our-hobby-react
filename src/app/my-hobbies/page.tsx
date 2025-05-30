@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { hobbyService } from '@/features/my-hobbies/services/hobbyService'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 import CardItem from '@/features/my-hobbies/components/CardItem/CardItem'
@@ -13,12 +14,20 @@ interface Hobby {
 }
 
 export default function MyHobbyHome() {
+  const router = useRouter()
   const { user, isLoggedIn, checkToken } = useAuth()
   const [myHobbies, setMyHobbies] = useState<Hobby[]>([])
 
   useEffect(() => {
-    checkToken() // 새로고침 시 로그인 유지 상태 보정
+    checkToken()
   }, [])
+
+  // ✅ 로그인 상태 확인 → 없으면 로그인 페이지로 이동
+  useEffect(() => {
+    if (isLoggedIn === false) {
+      router.push('/auth/login')
+    }
+  }, [isLoggedIn])
 
   useEffect(() => {
     if (!user?.userId) return
