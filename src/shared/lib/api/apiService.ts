@@ -49,7 +49,7 @@ const handleError = (error: unknown): never => {
 
     switch (status) {
       case 401:
-        if (!token) window.location.href = '/auth/login'
+        if (!token) window.location.href = '/login'
         break
       case 404:
         window.location.href = '/404'

@@ -25,7 +25,7 @@ export default function MyHobbyHome() {
   // ✅ 로그인 상태 확인 → 없으면 로그인 페이지로 이동
   useEffect(() => {
     if (isLoggedIn === false) {
-      router.push('/auth/login')
+      router.push('/login')
     }
   }, [isLoggedIn])
 

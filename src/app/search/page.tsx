@@ -10,7 +10,7 @@ interface Hobby {
   description: string
   location: {
     type: string
-    coordinates: [number, number] // [lng, lat]
+    coordinates: [number, number]
     address: string
   }
 }
@@ -19,17 +19,15 @@ export default function SearchPage() {
   const searchParams = useSearchParams()
   const query = searchParams.get('query') || ''
   const [hobbies, setHobbies] = useState<Hobby[]>([])
-  const [center, setCenter] = useState<{ lat: number; lng: number }>({ lat: 37.5665, lng: 126.9780 }) // 기본 서울
-  const [hoveredHobbyId, setHoveredHobbyId] = useState<string | null>(null) // ✅ hover 상태 저장
+  const [center, setCenter] = useState<{ lat: number; lng: number }>({ lat: 37.5665, lng: 126.9780 }) // 기본값: 서울
+  const [hoveredHobbyId, setHoveredHobbyId] = useState<string | null>(null)
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   })
 
   useEffect(() => {
-    const fetchNearbyHobbies = async () => {
-      if (!query) return
-
+    const fetchHobbiesByQuery = async (query: string) => {
       try {
         const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
         const geocodeRes = await fetch(
@@ -43,26 +41,46 @@ export default function SearchPage() {
 
           const hobbyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hobbies/search?lat=${location.lat}&lng=${location.lng}`)
           const hobbyData = await hobbyRes.json()
-
-          if (Array.isArray(hobbyData)) {
-            setHobbies(hobbyData)
-          } else {
-            console.error('서버 응답 오류:', hobbyData)
-          }
-        } else {
-          console.error('주소 변환 실패:', geocodeData.error_message || geocodeData.status)
+          if (Array.isArray(hobbyData)) setHobbies(hobbyData)
         }
       } catch (err) {
-        console.error('검색 오류:', err)
+        console.error('주소 기반 검색 오류:', err)
       }
     }
 
-    fetchNearbyHobbies()
+    const fetchHobbiesByGeolocation = () => {
+      if (!navigator.geolocation) {
+        console.warn('위치 정보 접근이 불가능한 브라우저입니다.')
+        return
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords
+          setCenter({ lat: latitude, lng: longitude })
+
+          try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hobbies/search?lat=${latitude}&lng=${longitude}`)
+            const data = await res.json()
+            if (Array.isArray(data)) setHobbies(data)
+          } catch (err) {
+            console.error('위치 기반 검색 오류:', err)
+          }
+        },
+        (err) => {
+          console.error('위치 접근 거부:', err)
+        }
+      )
+    }
+
+    if (query) {
+      fetchHobbiesByQuery(query)
+    } else {
+      fetchHobbiesByGeolocation()
+    }
   }, [query])
 
-  if (!isLoaded) {
-    return <div>Loading Map...</div>
-  }
+  if (!isLoaded) return <div>Loading Map...</div>
 
   return (
     <div className="w-screen h-screen">
@@ -71,37 +89,27 @@ export default function SearchPage() {
         center={center}
         zoom={13}
         options={{
-          styles: [
-            { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-          ],
+          styles: [{ featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }],
           disableDefaultUI: true,
         }}
       >
         {hobbies.map((hobby) => {
           const [lng, lat] = hobby.location.coordinates
-
           return (
             <Marker
               key={hobby._id}
               position={{ lat, lng }}
-              onMouseOver={() => setHoveredHobbyId(hobby._id)} // ✅ 마우스 올리면 id 저장
-              onMouseOut={() => setHoveredHobbyId(null)} // ✅ 마우스 나가면 초기화
+              onMouseOver={() => setHoveredHobbyId(hobby._id)}
+              onMouseOut={() => setHoveredHobbyId(null)}
               onClick={() => {
                 window.location.href = `/hobbies/${hobby._id}`
               }}
             >
               {hoveredHobbyId === hobby._id && (
-                <InfoWindow 
-                  position={{ lat, lng }} 
-                  options={{ disableAutoPan: true }}
-                >
+                <InfoWindow position={{ lat, lng }} options={{ disableAutoPan: true }}>
                   <div className="p-1 rounded-lg shadow-lg bg-white w-36">
-                    <h3 className="text-sm font-semibold text-gray-800">
-                      {hobby.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {hobby.description}
-                    </p>
+                    <h3 className="text-sm font-semibold text-gray-800">{hobby.name}</h3>
+                    <p className="text-xs text-gray-500 mt-1">{hobby.description}</p>
                   </div>
                 </InfoWindow>
               )}

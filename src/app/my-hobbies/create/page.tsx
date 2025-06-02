@@ -30,7 +30,7 @@ export default function CreateHobbyPage() {
       const result: any = await checkToken()
       if (!result) {
         alert('로그인이 필요합니다.')
-        router.push('/auth/login')
+        router.push('/login')
       }
     }
     verifyLogin()

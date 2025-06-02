@@ -36,17 +36,23 @@ export const useAuth = create<AuthState>((set) => ({
 
   checkToken: () => {
     const token = localStorage.getItem('userToken')
-    if (!token) return set({ user: null, isLoggedIn: false })
-
+    if (!token) {
+      set({ user: null, isLoggedIn: false })
+      return false
+    }
+  
     try {
       const decoded = jwt.decode(token) as JwtPayload | null
       if (decoded) {
         set({ user: decoded, isLoggedIn: true })
+        return true
       } else {
         set({ user: null, isLoggedIn: false })
+        return false
       }
     } catch {
       set({ user: null, isLoggedIn: false })
+      return false
     }
-  },
+  }
 }))

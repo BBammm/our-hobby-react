@@ -20,8 +20,8 @@ import {
 } from '@headlessui/react'
 
 const products = [
-  { name: '내 지역의 취미', description: '내 지역의 취미를 보는곳', href: '#', icon: MapPinIcon },
-  { name: '취미 둘러보기', description: '사람들의 취미를 공유하는곳', href: '#', icon: ChatBubbleBottomCenterTextIcon },
+  // { name: '내 지역의 취미', description: '내 지역의 취미를 보는곳', href: '#', icon: MapPinIcon },
+  { name: '취미 둘러보기', description: '사람들의 취미를 공유하는곳', href: 'search', icon: ChatBubbleBottomCenterTextIcon },
 ]
 
 export default function Header() {
