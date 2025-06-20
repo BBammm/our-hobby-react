@@ -15,26 +15,29 @@ interface Hobby {
 
 export default function MyHobbyHome() {
   const router = useRouter()
-  const { user, isLoggedIn, checkToken } = useAuth()
+  const isLoggedIn = useAuth((state) => state.isLoggedIn)
+  const checkLogin = useAuth((state) => state.checkLogin)
   const [myHobbies, setMyHobbies] = useState<Hobby[]>([])
 
+  // ✅ 마운트시 로그인 상태 체크(쿠키 기반)
   useEffect(() => {
-    checkToken()
-  }, [])
+    checkLogin()
+  }, [checkLogin])
 
-  // ✅ 로그인 상태 확인 → 없으면 로그인 페이지로 이동
+  // ✅ 로그인 상태 아니면 로그인 페이지로 이동
   useEffect(() => {
     if (isLoggedIn === false) {
       router.push('/login')
     }
-  }, [isLoggedIn])
+  }, [isLoggedIn, router])
 
+  // ✅ 내 취미 목록 불러오기 (userId 넘길 필요 없이 서버에서 인증된 유저 기준으로 반환)
   useEffect(() => {
-    if (!user?.userId) return
+    if (!isLoggedIn) return
 
     const fetch = async () => {
       try {
-        const res: any = await hobbyService.getMyHobbies(user.userId)
+        const res: any = await hobbyService.getMyHobbies() // userId 인자 필요 없음!
         setMyHobbies(res)
       } catch (err) {
         console.error('내 취미 불러오기 실패:', err)
@@ -42,7 +45,7 @@ export default function MyHobbyHome() {
     }
 
     fetch()
-  }, [user?.userId])
+  }, [isLoggedIn])
 
   return (
     <section className="px-4 py-6 max-w-[1200px] mx-auto">

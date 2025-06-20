@@ -18,19 +18,33 @@ import {
   PopoverGroup,
   PopoverPanel,
 } from '@headlessui/react'
+import { useRouter } from 'next/navigation'
+import { authService } from '@/features/auth/services/authService'
 
 const products = [
-  // { name: '내 지역의 취미', description: '내 지역의 취미를 보는곳', href: '#', icon: MapPinIcon },
   { name: '취미 둘러보기', description: '사람들의 취미를 공유하는곳', href: 'search', icon: ChatBubbleBottomCenterTextIcon },
 ]
 
 export default function Header() {
-  const { isLoggedIn, logout, checkToken } = useAuth()
+  const isLoggedIn = useAuth((state) => state.isLoggedIn)
+  const checkLogin = useAuth((state) => state.checkLogin)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
-    checkToken()
-  }, [])
+    checkLogin()
+  }, [checkLogin])
+
+  // 로그아웃
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+      await checkLogin()
+      router.push('/login')
+    } catch (e) {
+      alert('로그아웃에 실패했습니다.') // 여기까지 올 일 없음!
+    }
+  }
 
   return (
     <header className="bg-white">
@@ -91,7 +105,7 @@ export default function Header() {
                   </Link>
                 </Menu.Item>
                 <Menu.Item>
-                  <button onClick={logout} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-gray-600">
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-gray-600">
                     로그아웃
                   </button>
                 </Menu.Item>
@@ -105,8 +119,6 @@ export default function Header() {
           )}
         </div>
       </nav>
-
-      {/* 모바일 메뉴 */}
       <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
         <div className="fixed inset-0 z-10" />
         <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full bg-white px-6 py-6 sm:max-w-sm overflow-y-auto">
@@ -158,7 +170,7 @@ export default function Header() {
                       마이페이지
                     </Link>
                     <button
-                      onClick={logout}
+                      onClick={handleLogout}
                       className="-mx-3 block text-left rounded-lg px-3 py-2.5 text-base font-semibold text-gray-900 hover:bg-gray-50"
                     >
                       로그아웃

@@ -1,58 +1,17 @@
-'use client'
-
 import { create } from 'zustand'
-import jwt from 'jsonwebtoken'
-
-interface JwtPayload {
-  userId: string
-  email?: string
-  nickname?: string
-}
+import { authService } from '@/features/auth/services/authService' // 서버에서 쿠키로 로그인 여부를 확인하는 API
 
 interface AuthState {
-  user: JwtPayload | null
   isLoggedIn: boolean
-  login: (token: string) => void
-  logout: () => void
-  checkToken: () => void
+  setLoggedIn: (val: boolean) => void
+  checkLogin: () => Promise<void>
 }
 
 export const useAuth = create<AuthState>((set) => ({
-  user: null,
   isLoggedIn: false,
-
-  login: (token) => {
-    localStorage.setItem('userToken', token)
-    const decoded = jwt.decode(token) as JwtPayload | null
-    if (decoded) {
-      set({ user: decoded, isLoggedIn: true })
-    }
-  },
-
-  logout: () => {
-    localStorage.removeItem('userToken')
-    set({ user: null, isLoggedIn: false })
-  },
-
-  checkToken: () => {
-    const token = localStorage.getItem('userToken')
-    if (!token) {
-      set({ user: null, isLoggedIn: false })
-      return false
-    }
-  
-    try {
-      const decoded = jwt.decode(token) as JwtPayload | null
-      if (decoded) {
-        set({ user: decoded, isLoggedIn: true })
-        return true
-      } else {
-        set({ user: null, isLoggedIn: false })
-        return false
-      }
-    } catch {
-      set({ user: null, isLoggedIn: false })
-      return false
-    }
+  setLoggedIn: (val) => set({ isLoggedIn: val }),
+  checkLogin: async () => {
+    const me = await authService.getMe()
+    set({ isLoggedIn: !!me })
   }
 }))

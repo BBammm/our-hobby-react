@@ -11,7 +11,6 @@ export interface CreateHobbyInput {
     lng: number
     address: string
   }
-  creator: string
 }
 
 // Hobby 응답 타입
@@ -36,8 +35,8 @@ export const hobbyService = {
     return apiService.post<{ message: string }>('/hobbies', data)
   },
 
-  getMyHobbies: (userId: string) => {
-    return apiService.get<Hobby[]>(`/hobbies/mine?userId=${userId}`)
+  getMyHobbies: () => {
+    return apiService.get<Hobby[]>('/my-hobbies')
   },
 
   getNearbyHobbies: (lat: number, lng: number) => {

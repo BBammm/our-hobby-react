@@ -14,7 +14,8 @@ interface SelectedTag {
 
 export default function CreateHobbyPage() {
   const router = useRouter()
-  const { user, isLoggedIn, checkToken } = useAuth()
+  const isLoggedIn = useAuth((state) => state.isLoggedIn)
+  const checkLogin = useAuth((state) => state.checkLogin)
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -26,15 +27,15 @@ export default function CreateHobbyPage() {
 
   // ✅ 로그인 상태 확인 및 미로그인 시 리다이렉션
   useEffect(() => {
-    const verifyLogin = async () => {
-      const result: any = await checkToken()
-      if (!result) {
-        alert('로그인이 필요합니다.')
-        router.push('/login')
-      }
+    checkLogin()
+  }, [checkLogin])
+
+  useEffect(() => {
+    if (isLoggedIn === false) {
+      alert('로그인이 필요합니다.')
+      router.push('/login')
     }
-    verifyLogin()
-  }, [])
+  }, [isLoggedIn, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,7 +44,6 @@ export default function CreateHobbyPage() {
       setError('모든 필드를 입력해주세요.')
       return
     }
-
     if (name.length > 30) {
       setError('모임 이름은 30자 이내로 입력해주세요.')
       return
@@ -82,7 +82,6 @@ export default function CreateHobbyPage() {
         description,
         locationType,
         location: finalLocation,
-        creator: user?.userId || '',
       })
 
       alert('모임 생성 완료!')

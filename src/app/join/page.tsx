@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { authService } from '@/features/auth/services/authService'
 import { useAuth } from '@/features/auth/hooks/useAuth'
+import { useEffect } from 'react'
 
 interface FormData {
   email: string
@@ -13,7 +14,15 @@ interface FormData {
 
 export default function JoinPage() {
   const router = useRouter()
-  const login = useAuth((state) => state.login)
+  const isLoggedIn = useAuth((state) => state.isLoggedIn)
+  const checkLogin = useAuth((state) => state.checkLogin)
+
+  // 이미 로그인 상태면 홈으로 이동
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.replace('/')
+    }
+  }, [isLoggedIn, router])
 
   const {
     register,
@@ -26,11 +35,11 @@ export default function JoinPage() {
       // 1. 회원가입 요청
       await authService.register(data)
 
-      // 2. 자동 로그인 요청
-      const loginRes = await authService.login({ email: data.email, password: data.password })
+      // 2. 자동 로그인 요청 (서버가 쿠키 내려줌)
+      await authService.login({ email: data.email, password: data.password })
 
-      // 3. 토큰 저장
-      login(loginRes.token)
+      // 3. 로그인 상태 갱신(쿠키로 판단)
+      await checkLogin()
 
       // 4. 홈으로 이동
       alert('회원가입 및 자동 로그인 완료!')

@@ -1,9 +1,10 @@
 'use client'
 
-import { useAuth } from '@/features/auth/hooks/useAuth'
-import { authService } from '@/features/auth/services/authService'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { authService } from '@/features/auth/services/authService'
+import { useAuth } from '@/features/auth/hooks/useAuth'
+import { useEffect } from 'react'
 
 interface FormData {
   email: string
@@ -12,9 +13,16 @@ interface FormData {
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isLoggedIn = useAuth((state) => state.isLoggedIn)
+  const checkLogin = useAuth((state) => state.checkLogin)
 
-  // Zustand 상태 훅에서 login 함수만 가져옴
-  const login = useAuth((state) => state.login)
+  // 이미 로그인 상태면 홈으로 이동
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.replace('/')
+    }
+  }, [isLoggedIn, router])
 
   const {
     register,
@@ -24,14 +32,19 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      // 1. 로그인 API 호출
-      const res = await authService.login(data)
+      // 1. 로그인 요청 (서버가 쿠키를 내려줌)
+      await authService.login(data)
 
-      // 2. JWT 토큰 Zustand에 저장
-      login(res.token)
+      // 2. 로그인 상태 갱신(쿠키로 판단)
+      await checkLogin()
 
-      // 3. 메인 페이지로 이동
-      router.push('/')
+      // 3. 리다이렉트
+      const redirectTo = searchParams.get('redirect')
+      if (redirectTo) {
+        router.push(redirectTo)
+      } else {
+        router.push('/')
+      }
     } catch (err) {
       const error = err as { message?: string }
       alert(error.message || '로그인 실패')

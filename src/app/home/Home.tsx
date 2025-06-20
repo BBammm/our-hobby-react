@@ -1,6 +1,6 @@
-import styles from './Home.module.scss';
 import Image from "next/image";
 import { SearchSection, EventSlider, PopularHobbies } from "../../features/home/components";
+import RequireLoginButton from "@/shared/components/RequireLoginButton/RequireLoginButton";
 
 const events = [
   {
@@ -42,9 +42,9 @@ export default function Home() {
             <h2 className="text-4xl font-bold mb-4 text-gray-800 text-center">
               나의 취미 스타일은?<br />혹은 내 취미를 공유해보세요.
             </h2>
-            <a href="/my-hobbies/create" className="mt-6 px-10 py-4 rounded-xl bg-[#434A57] text-white text-lg font-semibold hover:bg-[#2e3440] transition">
+            <RequireLoginButton to="/my-hobbies/create">
               취미만들기
-            </a>
+            </RequireLoginButton>
           </div>
           {/* 이미지 */}
           <div className="flex-1 flex items-center justify-center">
